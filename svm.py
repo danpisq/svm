@@ -33,8 +33,7 @@ class SVM:
         distances = 1 - target * (np.dot(features, weights))
         distances[distances < 0] = 0
         hinge_loss = self.regularization_strength * np.sum(distances) / features.shape[0]
-        # cost
-        return 0.5 * np.dot(weights, weights) * hinge_loss
+        return 0.5 * np.dot(weights, weights) + hinge_loss
 
     def calculate_cost_gradient(self, features_batch, target_batch, weights):
         # if only one example is passed
