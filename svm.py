@@ -15,7 +15,7 @@ class SVM:
             features, target = shuffle(features, target) # shuffle to prevent repeating update cycles
             print(f'Epoch {epoch}, loss: {self.compute_cost(features, target, weights)}')
             for ind, x in enumerate(features):
-                ascent = self.calculate_cost_gradient(x, target[ind], weights)
+                ascent = self.compute_cost_gradient(x, target[ind], weights)
                 weights = weights - (self.learning_rate * ascent)
         self.weights = weights
 
@@ -35,7 +35,7 @@ class SVM:
         hinge_loss = self.regularization_strength * np.sum(distances) / features.shape[0]
         return 0.5 * np.dot(weights, weights) + hinge_loss
 
-    def calculate_cost_gradient(self, features_batch, target_batch, weights):
+    def compute_cost_gradient(self, features_batch, target_batch, weights):
         # if only one example is passed
         if type(target_batch) == np.float64:
             target_batch = np.array([target_batch])
