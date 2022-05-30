@@ -14,8 +14,8 @@ if __name__ == '__main__':
 
     X_train, X_valid, y_train, y_valid = train_test_split(X.to_numpy(), y.to_numpy(), test_size=0.2, random_state=42)
 
-    svm = SVM(1000, 1e-5)
-    svm.fit(X_train, y_train, max_epochs=10)
+    svm = SVM(1000, 1e-2)
+    svm.fit(X_train, y_train, max_epochs=10000)
     tmp = y_valid
     y_predicted = svm.predict(X_valid)
 

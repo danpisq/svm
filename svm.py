@@ -8,23 +8,22 @@ class SVM:
         self.weights = None
         self.learning_rate = learning_rate
 
-    def fit(self, features: np.ndarray, target: np.ndarray, max_epochs: int = 5000) -> None:
+    def fit(self, features: np.ndarray, target: np.ndarray, max_epochs: int = 5000, logging=False) -> None:
         weights = np.zeros(features.shape[1] + 1)
         # sgd
         for epoch in range(max_epochs):
-            features, target = shuffle(features, target) # shuffle to prevent repeating update cycles
-            print(f'Epoch {epoch}, loss: {self.compute_cost(features, target, weights)}')
-            for ind, x in enumerate(features):
-                ascent = self.compute_cost_gradient(x, target[ind], weights)
-                weights = weights - (self.learning_rate * ascent)
+            features, target = shuffle(features, target)
+            if logging:
+                print(f'Epoch {epoch}, loss: {self.compute_cost(features, target, weights)}')
+            ascent = self.compute_cost_gradient(features, target, weights)
+
+            weights -= self.learning_rate * ascent
+
         self.weights = weights
 
     def predict(self, features: np.ndarray) -> np.ndarray:
         features = self._add_bias_to_features(features)
-        y_test_predicted = np.array([])
-        for i in range(features.shape[0]):
-            yp = np.sign(np.dot(self.weights, features[i]))  # model
-            y_test_predicted = np.append(y_test_predicted, yp)
+        y_test_predicted = np.sign(np.dot(features, self.weights))
         return y_test_predicted
 
     def compute_cost(self, features, target, weights):
@@ -41,18 +40,38 @@ class SVM:
             target_batch = np.array([target_batch])
             features_batch = np.array([features_batch])
         features_batch = self._add_bias_to_features(features_batch)
-        distance = 1 - (target_batch * np.dot(features_batch, weights))
-        dw = np.zeros(len(weights))
+        negative_distance_mask = self.calculate_negative_distance_mask(weights, features_batch, target_batch)
 
-        for ind, d in enumerate(distance):
-            if max(0, d) == 0:
-                di = weights
-            else:
-                di = weights - (self.regularization_strength * target_batch[ind] * features_batch[ind])
-            dw += di
-        dw = dw / len(target_batch) # average
-        return dw
+        negative_distance_derivative = self.partial_derivative_for_negative_distance(negative_distance_mask, weights)
+        positive_distance_derivative = self.partial_derivative_for_positive_distance(
+            weights,
+            negative_distance_mask,
+            features_batch,
+            target_batch
+        )
+
+        samples_derivative = negative_distance_derivative + positive_distance_derivative
+        batch_derivative = np.average(samples_derivative, axis=0)
+        return batch_derivative
+
+    @staticmethod
+    def calculate_negative_distance_mask(weights, features_batch, target_batch):
+        distance = 1 - (target_batch * np.dot(features_batch, weights))
+        return np.tile(np.reshape(distance <= 0., (-1, 1)), (1, features_batch.shape[1]))
+
+    @staticmethod
+    def partial_derivative_for_negative_distance(weights, distance_smaller_than_zero):
+        distance_mask = distance_smaller_than_zero.astype(np.float)
+        return np.multiply(distance_mask, weights)
+
+    def partial_derivative_for_positive_distance(self, weights, distance_smaller_than_zero, features_batch, target_batch):
+        distance_mask = (~distance_smaller_than_zero).astype(np.float)
+        weights_tiled = np.tile(weights, (features_batch.shape[0], 1))
+        target_tiled = np.tile(target_batch.reshape((-1, 1)), (1, features_batch.shape[1]))
+
+        partial_derivative = weights_tiled - self.regularization_strength * target_tiled * features_batch
+        return np.multiply(distance_mask, partial_derivative)
 
     @staticmethod
     def _add_bias_to_features(features):
-        return np.append(features, np.ones((features.shape[0], 1)), axis=1)
+        return np.append(features, np.ones((features.shape[0], 1)), axis=-1)
