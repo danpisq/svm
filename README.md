@@ -10,8 +10,8 @@ Implemented features:
 
 Contains
 ---------------------------------
-- /data - repository with [Breast Cancer Wisconsin dataset](https://www.kaggle.com/datasets/uciml/breast-cancer-wisconsin-data).
-- /test - repository with unit tests.
+- /data/ - repository with [Breast Cancer Wisconsin dataset](https://www.kaggle.com/datasets/uciml/breast-cancer-wisconsin-data).
+- /test/ - repository with unit tests.
 - /features.py - data preprocessing.
 - /main.py - main script with model training.
 - /requirements.txt - list of requirements used by the project.
