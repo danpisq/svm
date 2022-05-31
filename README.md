@@ -24,5 +24,6 @@ Running the example
 ---------------------------------
 `python main.py`
 
-
+Author
+---------------------------------
 Daniel Piskorski
