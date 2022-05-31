@@ -1,3 +1,6 @@
+"""
+Module with functionalities for data preprocessing.
+"""
 from typing import Tuple
 
 import pandas as pd
@@ -5,6 +8,9 @@ from sklearn.preprocessing import MinMaxScaler
 
 
 def preprocess(data: pd.DataFrame) -> Tuple[pd.DataFrame, pd.DataFrame]:
+    """
+    Preprocess dataset so it can be used for SVM classification.
+    """
     # drop not needed columns
     data.drop(['Unnamed: 32', 'id'], axis=1, inplace=True)
     # map target column to 1 and -1 labels
