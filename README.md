@@ -1,5 +1,6 @@
 Support-Vector Machine Classifier
 =================================
+![image](https://user-images.githubusercontent.com/12935674/171217686-2df0965e-314e-4115-95f5-f2e87a1b880f.png)
 
 Custom implementation of SVM classifier.
 
